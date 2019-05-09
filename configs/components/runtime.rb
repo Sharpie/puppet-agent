@@ -10,6 +10,8 @@ component "runtime" do |pkg, settings, platform|
       pkg.build_requires "http://pl-build-tools.delivery.puppetlabs.net/solaris/10/pl-gcc-4.8.2-1.#{platform.architecture}.pkg.gz"
       pkg.build_requires "http://pl-build-tools.delivery.puppetlabs.net/solaris/10/pl-binutils-2.27-1.#{platform.architecture}.pkg.gz"
     end
+  elsif platform.is_cross_compiled_linux? && platform.name =~ /debian-9/
+    # Debian 9 brings its own stuff.
   elsif platform.is_cross_compiled_linux? || platform.name =~ /solaris-11/
     pkg.build_requires "pl-binutils-#{platform.architecture}"
     pkg.build_requires "pl-gcc-#{platform.architecture}"
@@ -48,6 +50,8 @@ component "runtime" do |pkg, settings, platform|
     pkg.install_file File.join(libdir, "libgcc_s.a"), "/opt/puppetlabs/puppet/lib/libgcc_s.a"
   elsif platform.is_macos?
     # Nothing to see here
+  elsif platform.is_cross_compiled_linux? && platform.name =~ /debian-9/
+    # Debian 9 brings its own stuff.
   elsif platform.is_windows?
     lib_type = platform.architecture == "x64" ? "seh" : "sjlj"
     pkg.install_file "#{settings[:gcc_bindir]}/libgcc_s_#{lib_type}-1.dll", "#{settings[:bindir]}/libgcc_s_#{lib_type}-1.dll"

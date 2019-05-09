@@ -8,6 +8,8 @@ component "leatherman" do |pkg, settings, platform|
     pkg.build_requires "gettext"
   elsif platform.name =~ /solaris-10/
     pkg.build_requires "http://pl-build-tools.delivery.puppetlabs.net/solaris/10/pl-cmake-3.2.3-2.i386.pkg.gz"
+  elsif platform.is_cross_compiled_linux? && platform.name =~ /debian-9/
+    # Nothing to see here.
   elsif platform.is_cross_compiled_linux? || platform.name =~ /solaris-11/
     pkg.build_requires "pl-cmake"
   elsif platform.is_aix?
