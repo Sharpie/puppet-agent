@@ -6,6 +6,11 @@ project "puppet-agent" do |proj|
   # - Settings included in this file should apply only to local components in this repository.
   runtime_details = JSON.parse(File.read('configs/components/puppet-runtime.json'))
 
+  if ENV.key?('VANAGON_RUNTIME_LOCATION')
+    # FIXME: Come up with a better solution to patch this in.
+    runtime_details['location'] = ENV['VANAGON_RUNTIME_LOCATION']
+  end
+
   settings[:puppet_runtime_version] = runtime_details['version']
   settings[:puppet_runtime_location] = runtime_details['location']
   settings[:puppet_runtime_basename] = "agent-runtime-master-#{runtime_details['version']}.#{platform.name}"
