@@ -46,8 +46,13 @@ component "facter" do |pkg, settings, platform|
     pkg.build_requires 'openjdk-7-jdk'
     java_home = "/usr/lib/jvm/java-7-openjdk-#{platform.architecture}"
   when /(debian-9|ubuntu-(15|16|18))/
-    pkg.build_requires 'openjdk-8-jdk'
-    java_home = "/usr/lib/jvm/java-8-openjdk-#{platform.architecture}"
+    # FIXME: Probably a better way to express this.
+    #        Also, who knows? If we could cram Puppet Server
+    #        onto a Pi, that'd be pretty neat.
+    unless platform.is_cross_compiled_linux?
+      pkg.build_requires 'openjdk-8-jdk'
+      java_home = "/usr/lib/jvm/java-8-openjdk-#{platform.architecture}"
+    end
   when /sles-12/
     pkg.build_requires 'java-1_7_0-openjdk-devel'
     java_home = "/usr/lib64/jvm/java-1.7.0-openjdk"
