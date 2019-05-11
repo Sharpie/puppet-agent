@@ -13,6 +13,23 @@ component "cpp-hocon" do |pkg, settings, platform|
     cmake = "/usr/local/bin/cmake"
     boost_static_flag = "-DBOOST_STATIC=OFF"
     special_flags = "-DCMAKE_CXX_FLAGS='#{settings[:cflags]}' -DENABLE_CXX_WERROR=OFF"
+  elsif platform.is_cross_compiled_linux? && platform.name =~ /debian-(?:9|10)/
+    # Use system cmake and libraries
+    cmake = '/usr/bin/cmake'
+
+    # Env variables used by CMakeCross.txt to select the desired
+    # crossbuild-essential-<arch> toolchain.
+    pkg.environment('DEB_HOST_ARCH', platform.architecture)
+    pkg.environment('DEB_HOST_GNU_TYPE', platform.platform_triple)
+    toolchain = '-DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt'
+
+    boost_static_flag = "-DBOOST_STATIC=OFF"
+    special_flags = ["-DBOOST_INCLUDEDIR=/usr/include",
+                     "-DBOOST_LIBRARYDIR=/usr/lib/#{platform.platform_triple}",
+                     "-DCMAKE_FIND_ROOT_PATH='/opt/puppetlabs/puppet;/usr'"]
+
+    special_flags += ["-DENABLE_CXX_WERROR=OFF"] if platform.name =~ /debian-10/
+    special_flags = special_flags.join(' ')
   elsif platform.is_cross_compiled_linux?
     toolchain = "-DCMAKE_TOOLCHAIN_FILE=/opt/pl-build-tools/#{settings[:platform_triple]}/pl-build-toolchain.cmake"
     cmake = "/opt/pl-build-tools/bin/cmake"
