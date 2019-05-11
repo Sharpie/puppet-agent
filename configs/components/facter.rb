@@ -78,7 +78,7 @@ component "facter" do |pkg, settings, platform|
   # on the vagaries of the system we build on.
   skip_blkid = 'ON'
   if platform.is_deb? || platform.is_cisco_wrlinux?
-    pkg.build_requires "libblkid-dev"
+    pkg.build_requires "libblkid-dev" unless platform.is_cross_compiled?
     skip_blkid = 'OFF'
   elsif platform.is_rpm?
     if (platform.is_el? && platform.os_version.to_i >= 6) || (platform.is_sles? && platform.os_version.to_i >= 11) || platform.is_fedora?
@@ -119,6 +119,21 @@ component "facter" do |pkg, settings, platform|
       special_flags += "-DCMAKE_CXX_FLAGS='#{settings[:cflags]}'"
     end
     yamlcpp_static_flag = "-DYAMLCPP_STATIC=OFF"
+  elsif platform.is_cross_compiled_linux? && platform.name =~ /debian-9/
+    # Use system cmake and libraries
+    cmake = '/usr/bin/cmake'
+
+    # Env variables used by CMakeCross.txt to select the desired
+    # crossbuild-essential-<arch> toolchain.
+    pkg.environment('DEB_HOST_ARCH', platform.architecture)
+    pkg.environment('DEB_HOST_GNU_TYPE', platform.platform_triple)
+    toolchain = '-DCMAKE_TOOLCHAIN_FILE=/etc/dpkg-cross/cmake/CMakeCross.txt'
+
+    boost_static_flag = "-DBOOST_STATIC=OFF"
+    yamlcpp_static_flag = "-DYAMLCPP_STATIC=OFF"
+    special_flags += ["-DBOOST_INCLUDEDIR=/usr/include",
+                      "-DBOOST_LIBRARYDIR=/usr/lib/#{platform.platform_triple}",
+                      "-DCMAKE_FIND_ROOT_PATH='/opt/puppetlabs/puppet;/usr'"].join(' ')
   elsif platform.is_cross_compiled_linux?
     ruby = "#{settings[:host_ruby]} -r#{settings[:datadir]}/doc/rbconfig-#{settings[:ruby_version]}-orig.rb"
     toolchain = "-DCMAKE_TOOLCHAIN_FILE=/opt/pl-build-tools/#{settings[:platform_triple]}/pl-build-toolchain.cmake"
