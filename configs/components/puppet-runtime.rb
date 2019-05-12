@@ -25,6 +25,40 @@ component 'puppet-runtime' do |pkg, settings, platform|
   pkg.replaces 'pe-rubygem-deep-merge'
   pkg.replaces 'pe-rubygem-net-ssh'
 
+  if platform.is_cross_compiled_linux? && platform.name =~ /debian-9/
+    pkg.requires 'libblkid1'
+    pkg.requires 'libboost-chrono1.62.0'
+    pkg.requires 'libboost-date-time1.62.0'
+    pkg.requires 'libboost-filesystem1.62.0'
+    pkg.requires 'libboost-locale1.62.0'
+    pkg.requires 'libboost-log1.62.0'
+    pkg.requires 'libboost-program-options1.62.0'
+    pkg.requires 'libboost-random1.62.0'
+    pkg.requires 'libboost-regex1.62.0'
+    pkg.requires 'libboost-system1.62.0'
+    pkg.requires 'libboost-thread1.62.0'
+    pkg.requires 'libbz2-1.0'
+    pkg.requires 'libreadline7'
+    pkg.requires 'libyaml-cpp0.5v5'
+    pkg.requires 'zlib1g'
+  elsif platform.is_cross_compiled_linux? && platform.name =~ /debian-10/
+    pkg.requires 'libblkid1'
+    pkg.requires 'libboost-chrono1.67.0'
+    pkg.requires 'libboost-date-time1.67.0'
+    pkg.requires 'libboost-filesystem1.67.0'
+    pkg.requires 'libboost-locale1.67.0'
+    pkg.requires 'libboost-log1.67.0'
+    pkg.requires 'libboost-program-options1.67.0'
+    pkg.requires 'libboost-random1.67.0'
+    pkg.requires 'libboost-regex1.67.0'
+    pkg.requires 'libboost-system1.67.0'
+    pkg.requires 'libboost-thread1.67.0'
+    pkg.requires 'libbz2-1.0'
+    pkg.requires 'libreadline7'
+    pkg.requires 'libyaml-cpp0.6'
+    pkg.requires 'zlib1g'
+  end
+
   pkg.requires 'findutils' if platform.is_linux?
 
   pkg.install_only true
