@@ -29,7 +29,8 @@ component 'puppet-runtime' do |pkg, settings, platform|
 
   pkg.install_only true
 
-  if platform.is_cross_compiled_linux? || platform.is_solaris? || platform.is_aix?
+  if !(platform.is_cross_compiled_linux? && platform.name =~ /debian-(?:9|10)/) &&
+      (platform.is_cross_compiled_linux? || platform.is_solaris? || platform.is_aix?)
     pkg.build_requires 'runtime'
   end
 
@@ -39,6 +40,8 @@ component 'puppet-runtime' do |pkg, settings, platform|
     if platform.os_version == "11"
       pkg.build_requires 'pl-ruby'
     end
+  elsif platform.is_cross_compiled_linux? && platform.name =~ /debian-(?:9|10)/
+    # We use puppet-runtime's Ruby via QEMU
   elsif platform.is_cross_compiled_linux?
     pkg.build_requires 'pl-ruby'
   end
