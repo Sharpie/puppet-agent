@@ -18,7 +18,8 @@ component "leatherman" do |pkg, settings, platform|
     pkg.build_requires "cmake"
     pkg.build_requires "pl-toolchain-#{platform.architecture}"
     pkg.build_requires "pl-gettext-#{platform.architecture}"
-  elsif platform.name =~ /sles-15|fedora-(29|30)|el-8|debian-10/
+  elsif platform.name =~ /sles-15|fedora-(29|30)|el-8|debian-10/ ||
+        (platform.is_cross_compiled_linux? && platform.name =~ /debian-(?:9|10)/)
     # These platforms use their default OS toolchain and have package
     # dependencies configured in the platform provisioning step.
   else
