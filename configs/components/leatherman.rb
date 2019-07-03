@@ -3,7 +3,9 @@ component "leatherman" do |pkg, settings, platform|
 
   make = platform[:make]
 
-  if platform.is_macos?
+  if platform.is_cross_compiled_linux? && (platform.name =~ /debian-(?:9|10)/)
+    # Built using cross-build-essential
+  elsif platform.is_macos?
     pkg.build_requires "cmake"
     pkg.build_requires "gettext"
   elsif platform.name =~ /solaris-10/
