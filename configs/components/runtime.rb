@@ -2,7 +2,12 @@
 component "runtime" do |pkg, settings, platform|
   pkg.add_source "file://resources/files/runtime/runtime.sh"
 
-  if platform.name =~ /solaris-10/
+  if platform.name =~ /sles-15|fedora-(29|30)|el-8|debian-10/ ||
+        platform.is_macos? ||
+        (platform.is_cross_compiled_linux? && platform.name =~ /debian-(?:9|10)/)
+    # These platforms use their default OS toolchain and have package
+    # dependencies configured in the platform provisioning step.
+  elsif platform.name =~ /solaris-10/
     if platform.architecture == 'sparc'
       pkg.build_requires "http://pl-build-tools.delivery.puppetlabs.net/solaris/10/pl-gcc-4.8.2-9.#{platform.architecture}.pkg.gz"
       pkg.build_requires "http://pl-build-tools.delivery.puppetlabs.net/solaris/10/pl-binutils-2.27-2.#{platform.architecture}.pkg.gz"
@@ -24,9 +29,6 @@ component "runtime" do |pkg, settings, platform|
     pkg.build_requires "pl-pdcurses-#{platform.architecture}"
     # We only need zlib because curl is dynamically linking against zlib
     pkg.build_requires "pl-zlib-#{platform.architecture}"
-  elsif platform.name =~ /sles-15|fedora-(29|30)|el-8|debian-10/ || platform.is_macos?
-    # These platforms use their default OS toolchain and have package
-    # dependencies configured in the platform provisioning step.
   else
     pkg.build_requires "pl-gcc"
   end
@@ -46,7 +48,8 @@ component "runtime" do |pkg, settings, platform|
   if platform.is_aix?
     pkg.install_file File.join(libdir, "libstdc++.a"), "/opt/puppetlabs/puppet/lib/libstdc++.a"
     pkg.install_file File.join(libdir, "libgcc_s.a"), "/opt/puppetlabs/puppet/lib/libgcc_s.a"
-  elsif platform.is_macos?
+  elsif platform.is_macos? ||
+        (platform.is_cross_compiled_linux? && platform.name =~ /debian-(?:9|10)/)
     # Nothing to see here
   elsif platform.is_windows?
     lib_type = platform.architecture == "x64" ? "seh" : "sjlj"
