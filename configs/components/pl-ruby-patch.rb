@@ -7,7 +7,9 @@
 #
 # This component should also be present in the puppet-runtime project
 component "pl-ruby-patch" do |pkg, settings, platform|
-  if platform.is_cross_compiled?
+  if platform.is_cross_compiled_linux? && ( platform.name =~ /debian-(?:9|10)/ )
+    # Nothing to do here. We don't use pl-ruby.
+  elsif platform.is_cross_compiled?
     ruby_api_version = settings[:ruby_version].gsub(/\.\d*$/, '.0')
     base_ruby = case platform.name
                 when /solaris-10/
