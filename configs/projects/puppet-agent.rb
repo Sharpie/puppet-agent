@@ -15,6 +15,9 @@ project "puppet-agent" do |proj|
   sha1sum_uri = "#{settings_uri}.sha1"
   metadata_uri = File.join(runtime_details['location'], "#{proj.settings[:puppet_runtime_basename]}.json")
   proj.inherit_yaml_settings(settings_uri, sha1sum_uri, metadata_uri: metadata_uri)
+  unless settings.key?(:use_pl_build_tools)
+    settings[:use_pl_build_tools] = true
+  end
 
   # (PA-678) pe-r10k versions prior to 2.5.0.0 ship gettext gems.
   # Since we also ship those gems as part of puppet-agent
@@ -109,8 +112,9 @@ project "puppet-agent" do |proj|
     proj.component "shellpath"
   end
 
-  proj.component "runtime" if platform.name =~ /debian-[89]|el-[567]|redhatfips-7|sles-(:?11|12)|ubuntu-(:?14.04|16.04|18.04)/ ||
-                              !platform.is_linux?
+  proj.component "runtime" if settings[:use_pl_build_tools] &&
+                              ( platform.name =~ /debian-[89]|el-[567]|redhatfips-7|sles-(:?11|12)|ubuntu-(:?14.04|16.04|18.04)/ ||
+                                !platform.is_linux? )
 
   # Windows doesn't need these wrappers, only unix platforms
   unless platform.is_windows?
@@ -134,7 +138,7 @@ project "puppet-agent" do |proj|
   # Set the $DEV_BUILD environment variable to leave headers in place.
   proj.component "cleanup"
 
-  proj.component "pl-ruby-patch"
+  proj.component "pl-ruby-patch" if settings[:use_pl_build_tools]
 
   unless ENV['DEV_BUILD'].to_s.empty?
     proj.settings[:dev_build] = true
