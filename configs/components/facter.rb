@@ -20,8 +20,9 @@ component "facter" do |pkg, settings, platform|
 
   pkg.build_requires 'puppet-runtime' # Provides augeas, boost, curl, openssl, ruby, yaml-cpp
   pkg.build_requires 'leatherman'
-  pkg.build_requires 'runtime' if platform.name =~ /debian-[89]|el-[567]|redhatfips-7|sles-(:?11|12)|ubuntu-(:?14.04|16.04|18.04)/ ||
-                                  !platform.is_linux?
+  pkg.build_requires 'runtime' if settings[:use_pl_build_tools] &&
+                                  ( platform.name =~ /debian-[89]|el-[567]|redhatfips-7|sles-(:?11|12)|ubuntu-(:?14.04|16.04|18.04)/ ||
+                                    !platform.is_linux? )
   pkg.build_requires 'cpp-hocon'
   pkg.build_requires 'libwhereami'
 
@@ -50,7 +51,7 @@ component "facter" do |pkg, settings, platform|
     pkg.build_requires 'openjdk-8-jdk'
     java_home = "/usr/lib/jvm/java-8-openjdk-#{platform.architecture}"
   when /debian-10|ubuntu-20/
-    pkg.build_requires 'openjdk-11-jdk'
+    pkg.build_requires "openjdk-11-jdk:#{platform.architecture}"
     java_home = "/usr/lib/jvm/java-11-openjdk-#{platform.architecture}"
   when /sles-12/
     pkg.build_requires 'java-1_7_0-openjdk-devel'
@@ -120,7 +121,7 @@ component "facter" do |pkg, settings, platform|
     boost_static_flag = "-DBOOST_STATIC=OFF"
     special_flags += "-DCMAKE_CXX_FLAGS='#{settings[:cflags]}' -DENABLE_CXX_WERROR=OFF"
     yamlcpp_static_flag = "-DYAMLCPP_STATIC=OFF"
-  elsif platform.is_cross_compiled_linux?
+  elsif settings[:use_pl_build_tools] && platform.is_cross_compiled_linux?
     ruby = "#{settings[:host_ruby]} -r#{settings[:datadir]}/doc/rbconfig-#{settings[:ruby_version]}-orig.rb"
     toolchain = "-DCMAKE_TOOLCHAIN_FILE=/opt/pl-build-tools/#{settings[:platform_triple]}/pl-build-toolchain.cmake"
     cmake = "/opt/pl-build-tools/bin/cmake"
@@ -152,7 +153,7 @@ component "facter" do |pkg, settings, platform|
     pkg.environment "CPPFLAGS", settings[:cppflags]
     pkg.environment "LDFLAGS", settings[:ldflags]
     cmake = "cmake"
-    toolchain = ""
+    toolchain = settings[:cmake_toolchain]
     boost_static_flag = "-DBOOST_STATIC=OFF"
     yamlcpp_static_flag = "-DYAMLCPP_STATIC=OFF"
     special_flags += " -DENABLE_CXX_WERROR=OFF -DCMAKE_CXX_FLAGS='#{settings[:cflags]}'"

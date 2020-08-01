@@ -8,7 +8,7 @@ component "leatherman" do |pkg, settings, platform|
     pkg.build_requires "gettext"
   elsif platform.name =~ /solaris-10/
     pkg.build_requires "http://pl-build-tools.delivery.puppetlabs.net/solaris/10/pl-cmake-3.2.3-2.i386.pkg.gz"
-  elsif platform.is_cross_compiled_linux? || platform.name =~ /solaris-11/
+  elsif settings[:use_pl_build_tools] && (platform.is_cross_compiled_linux? || platform.name =~ /solaris-11/)
     pkg.build_requires "pl-cmake"
   elsif platform.is_aix?
     pkg.build_requires "http://pl-build-tools.delivery.puppetlabs.net/aix/#{platform.os_version}/ppc/pl-gcc-5.2.0-11.aix#{platform.os_version}.ppc.rpm"
@@ -23,8 +23,9 @@ component "leatherman" do |pkg, settings, platform|
   end
 
   pkg.build_requires "puppet-runtime" # Provides curl and ruby
-  pkg.build_requires "runtime" if platform.name =~ /debian-[89]|el-[567]|redhatfips-7|sles-(:?11|12)|ubuntu-(:?14.04|16.04|18.04)/ ||
-                                  !platform.is_linux?
+  pkg.build_requires "runtime" if settings[:use_pl_build_tools] &&
+                                  ( platform.name =~ /debian-[89]|el-[567]|redhatfips-7|sles-(:?11|12)|ubuntu-(:?14.04|16.04|18.04)/ ||
+                                    !platform.is_linux? )
 
   ruby = "#{settings[:host_ruby]} -rrbconfig"
 
@@ -39,7 +40,7 @@ component "leatherman" do |pkg, settings, platform|
     cmake = "/usr/local/bin/cmake"
     boost_static_flag = "-DBOOST_STATIC=OFF"
     special_flags = "-DCMAKE_CXX_FLAGS='#{settings[:cflags]}' -DENABLE_CXX_WERROR=OFF -DLEATHERMAN_MOCK_CURL=FALSE"
-  elsif platform.is_cross_compiled_linux?
+  elsif settings[:use_pl_buld_tools] && platform.is_cross_compiled_linux?
     ruby = "#{settings[:host_ruby]} -r#{settings[:datadir]}/doc/rbconfig-#{settings[:ruby_version]}-orig.rb"
     toolchain = "-DCMAKE_TOOLCHAIN_FILE=/opt/pl-build-tools/#{settings[:platform_triple]}/pl-build-toolchain.cmake"
     cmake = "/opt/pl-build-tools/bin/cmake"
@@ -74,7 +75,7 @@ component "leatherman" do |pkg, settings, platform|
     pkg.environment "CPPFLAGS", settings[:cppflags]
     pkg.environment "LDFLAGS", settings[:ldflags]
     cmake = "cmake"
-    toolchain = ""
+    toolchain = settings[:cmake_toolchain]
     boost_static_flag = ""
 
     # Workaround for hanging leatherman tests (-fno-strict-overflow)
