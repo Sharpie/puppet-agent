@@ -23,10 +23,15 @@ component 'dmidecode' do |pkg, settings, platform|
   pkg.environment "CFLAGS", settings[:cflags]
 
   if platform.is_cross_compiled?
+    cc = if settings[:use_pl_build_tools]
+           "/opt/pl-build-tools/bin/#{settings[:platform_triple]}-gcc"
+         else
+           settings[:cc]
+         end
     # The Makefile doesn't honor environment overrides, so we need to
     # edit it directly for cross-compiling
     pkg.configure do
-      ["sed -i \"s|gcc|/opt/pl-build-tools/bin/#{settings[:platform_triple]}-gcc|g\" Makefile"]
+      ["sed -i \"s|gcc|#{cc}|g\" Makefile"]
     end
   end
 
