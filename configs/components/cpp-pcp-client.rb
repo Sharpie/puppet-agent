@@ -29,7 +29,7 @@ component "cpp-pcp-client" do |pkg, settings, platform|
     special_flags = "-DCMAKE_CXX_FLAGS='#{settings[:cflags]}' -DENABLE_CXX_WERROR=OFF"
     toolchain = ""
     boost_static_flag = "-DBOOST_STATIC=OFF"
-  elsif platform.is_cross_compiled_linux?
+  elsif settings[:use_pl_build_tools] && platform.is_cross_compiled_linux?
     cmake = "/opt/pl-build-tools/bin/cmake"
     toolchain = "-DCMAKE_TOOLCHAIN_FILE=/opt/pl-build-tools/#{settings[:platform_triple]}/pl-build-toolchain.cmake"
   elsif platform.is_solaris?
@@ -48,7 +48,7 @@ component "cpp-pcp-client" do |pkg, settings, platform|
     pkg.environment "CPPFLAGS", settings[:cppflags]
     pkg.environment "LDFLAGS", settings[:ldflags]
     cmake = "cmake"
-    toolchain = ""
+    toolchain = settings[:cmake_toolchain]
     platform_flags = "-DCMAKE_CXX_FLAGS='#{settings[:cflags]} -Wimplicit-fallthrough=0'"
     special_flags = " -DENABLE_CXX_WERROR=OFF"
   end

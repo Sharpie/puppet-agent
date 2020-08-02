@@ -33,7 +33,7 @@ component "pxp-agent" do |pkg, settings, platform|
     toolchain = ""
     special_flags += "-DCMAKE_CXX_FLAGS='#{settings[:cflags]}' -DENABLE_CXX_WERROR=OFF"
     boost_static_flag = "-DBOOST_STATIC=OFF"
-  elsif platform.is_cross_compiled_linux?
+  elsif settings[:use_pl_build_tools] && platform.is_cross_compiled_linux?
     cmake = "/opt/pl-build-tools/bin/cmake"
     toolchain = "-DCMAKE_TOOLCHAIN_FILE=/opt/pl-build-tools/#{settings[:platform_triple]}/pl-build-toolchain.cmake"
   elsif platform.is_solaris?
@@ -59,7 +59,7 @@ component "pxp-agent" do |pkg, settings, platform|
   else
     # These platforms use the default OS toolchain, rather than pl-build-tools
     cmake = "cmake"
-    toolchain = ""
+    toolchain = settings[:cmake_toolchain]
     special_flags += " -DCMAKE_CXX_FLAGS='#{settings[:cflags]} -Wno-deprecated -Wimplicit-fallthrough=0' "
     special_flags += " -DENABLE_CXX_WERROR=OFF " unless platform.name =~ /sles-15/
   end
