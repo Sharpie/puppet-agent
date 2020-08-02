@@ -4,7 +4,7 @@ component "facter-ng" do |pkg, settings, platform|
   pkg.url "https://github.com/puppetlabs/facter/archive/#{pkg.get_version}.tar.gz"
 
   pkg.build_requires "puppet-runtime"
-  pkg.build_requires "pl-ruby-patch"
+  pkg.build_requires "pl-ruby-patch" if settings[:use_pl_build_tools]
 
   # When cross-compiling, we can't use the rubygems we just built.
   # Instead we use the host gem installation and override GEM_HOME. Yay?
