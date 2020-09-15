@@ -33,6 +33,20 @@ component 'puppet-runtime' do |pkg, settings, platform|
     pkg.build_requires 'runtime'
   end
 
+  if platform.name =~ /debian-\d+-armhf/
+    pkg.requires 'libboost-chrono1.67.0'
+    pkg.requires 'libboost-date-time1.67.0'
+    pkg.requires 'libboost-filesystem1.67.0'
+    pkg.requires 'libboost-locale1.67.0'
+    pkg.requires 'libboost-log1.67.0'
+    pkg.requires 'libboost-program-options1.67.0'
+    pkg.requires 'libboost-random1.67.0'
+    pkg.requires 'libboost-regex1.67.0'
+    pkg.requires 'libboost-system1.67.0'
+    pkg.requires 'libboost-thread1.67.0'
+    pkg.requires 'libyaml-cpp0.6'
+  end
+
   # Even though puppet's ruby comes from puppet-runtime, we still need a ruby
   # to build with on these platforms:
   if platform.architecture == "sparc"
